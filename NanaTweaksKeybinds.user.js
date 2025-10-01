@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Keybinds
 // @namespace    https://xtsusaku.net/
-// @version      0.0.2
+// @version      0.0.3
 // @description  AMQ Tweaks (request made)
 // @author       You
 // @match        http*://*.animemusicquiz.com/*
@@ -65,7 +65,7 @@ class NanaTweaksKeybinds {
       );
     this.actionList.push({ action, title, cb });
     this.keybinds[action] = this.keybinds[action] || {
-      key: defaultKeybind.toUpperCase(),
+      key: typeof defaultKeybind === "string" ? defaultKeybind.toUpperCase() : "",
       ctrl: false,
       alt: false,
       shift: false,

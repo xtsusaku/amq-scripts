@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Utilities
 // @namespace    https://xtsusaku.net/
-// @version      0.0.2
+// @version      0.0.3
 // @description  AMQ Tweaks (request made)
 // @author       You
 // @match        http*://*.animemusicquiz.com/*
@@ -115,7 +115,7 @@ function setupMultipleChoiceKeybinds() {
         quiz.answerInput.multipleChoice.answerOptions[0]
       );
     },
-    1
+    "1"
   );
   document.NanaTweaksKeybinds.addAction(
     "xtsk_mc_2",
@@ -130,7 +130,7 @@ function setupMultipleChoiceKeybinds() {
         quiz.answerInput.multipleChoice.answerOptions[1]
       );
     },
-    2
+    "2"
   );
   document.NanaTweaksKeybinds.addAction(
     "xtsk_mc_3",
@@ -145,7 +145,7 @@ function setupMultipleChoiceKeybinds() {
         quiz.answerInput.multipleChoice.answerOptions[2]
       );
     },
-    3
+    "3"
   );
   document.NanaTweaksKeybinds.addAction(
     "xtsk_mc_4",
@@ -160,6 +160,6 @@ function setupMultipleChoiceKeybinds() {
         quiz.answerInput.multipleChoice.answerOptions[3]
       );
     },
-    4
+    "4"
   );
 }
