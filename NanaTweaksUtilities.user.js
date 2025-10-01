@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Utilities
 // @namespace    https://xtsusaku.net/
-// @version      0.0.1
+// @version      0.0.2
 // @description  AMQ Tweaks (request made)
 // @author       You
 // @match        http*://*.animemusicquiz.com/*
@@ -15,9 +15,9 @@
 
 if (typeof Listener === "undefined") return;
 
-let loadInterval = setInterval(() => {
+let NanaTweaksUtilitiesLoadInterval = setInterval(() => {
   if ($("#loadingScreen").hasClass("hidden")) {
-    clearInterval(loadInterval);
+    clearInterval(NanaTweaksUtilitiesLoadInterval);
     setup();
   }
 }, 500);

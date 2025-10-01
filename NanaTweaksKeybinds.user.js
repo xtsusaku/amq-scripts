@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Keybinds
 // @namespace    https://xtsusaku.net/
-// @version      0.0.1
+// @version      0.0.2
 // @description  AMQ Tweaks (request made)
 // @author       You
 // @match        http*://*.animemusicquiz.com/*
@@ -16,15 +16,13 @@
 
 if (typeof Listener === "undefined") return;
 
-let loadInterval = setInterval(() => {
+let NanaTweaksKeybindsLoadInterval = setInterval(() => {
   if (document.NanaTweaksMenu) {
-    clearInterval(loadInterval);
+    clearInterval(NanaTweaksKeybindsLoadInterval);
     NanaTweaksKeybinds.setup();
     document.NanaTweaksKeybinds = NanaTweaksKeybinds;
   }
 }, 500);
-
-let old_function = [];
 
 class NanaTweaksKeybinds {
   static keybinds = {};
