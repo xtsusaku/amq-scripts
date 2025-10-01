@@ -6,7 +6,6 @@
 // @author       You
 // @match        http*://*.animemusicquiz.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=animemusicquiz.com
-// @require      https://pastebin.com/raw/B9fWTdBc
 // @downloadURL  https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksKeybinds.user.js
 // @updateURL    https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksKeybinds.user.js
 // ==/UserScript==
