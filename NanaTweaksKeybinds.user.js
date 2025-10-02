@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Keybinds
 // @namespace    https://xtsusaku.net/
-// @version      0.0.3
+// @version      0.0.4
 // @description  AMQ Tweaks (request made)
 // @author       You
 // @match        http*://*.animemusicquiz.com/*
@@ -36,6 +36,13 @@ class NanaTweaksKeybinds {
     this.actionList = this.actionList || [];
 
     document.addEventListener("keydown", (event) => {
+      if (
+        event.target.nodeName.toLowerCase() === "input" ||
+        event.target.nodeName.toLowerCase() === "textarea" ||
+        event.target.isContentEditable
+      ) {
+        return; // Ignore key events in input fields or textareas
+      }
       const key = event.key.toUpperCase();
       const ctrl = event.ctrlKey;
       const alt = event.altKey;
@@ -65,7 +72,8 @@ class NanaTweaksKeybinds {
       );
     this.actionList.push({ action, title, cb });
     this.keybinds[action] = this.keybinds[action] || {
-      key: typeof defaultKeybind === "string" ? defaultKeybind.toUpperCase() : "",
+      key:
+        typeof defaultKeybind === "string" ? defaultKeybind.toUpperCase() : "",
       ctrl: false,
       alt: false,
       shift: false,
