@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ Custom Language Load Fix
 // @namespace    xTsuSaKu
-// @version      2025-10-26
+// @version      0.2
 // @description  Fix JSON Load Data
 // @author       You
 // @match        http*://*.animemusicquiz.com/*
@@ -12,15 +12,13 @@
 (function() {
     'use strict';
 
-    if (typeof Listener === "undefined") return;
-
     localizationHandler.loadCustomLanguage = function(url, changeDoneCallback = () => {}) {
         $.ajax({
             url: url,
             type: "GET",
             success: (jsonData) => {
                 try {
-                    jsonData = JSON.parse(jsonData)
+                    jsonData = typeof jsonData === "string" ? JSON.parse(jsonData) : jsonData
                     i18next.addResourceBundle("custom", "translation", jsonData, true, true);
                     this.switchLanguage("custom", changeDoneCallback);
                     Cookies.set("custom_lang_url", url, { expires: 365 });
