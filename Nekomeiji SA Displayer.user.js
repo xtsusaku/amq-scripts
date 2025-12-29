@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nekomeiji's SA Displayer
 // @namespace    https://github.com/xtsusaku/amq-scripts
-// @version      0.0.1
+// @version      0.0.2
 // @description  S/A Displayer for Anime Music Quiz (Nekomeiji's Codebase)
 // @author       xTsuSaKu & Nekomeiji
 // @match        https://animemusicquiz.com/
@@ -22,12 +22,9 @@ let enabled = false;
   "use strict";
 
   let NanaTweaksMenuLoadInterval = setInterval(() => {
-    console.log(
-      "Nekomeiji's SA Displayer waiting for loading screen to hide..."
-    );
     if ($("#loadingScreen").hasClass("hidden")) {
       clearInterval(NanaTweaksMenuLoadInterval);
-      console.log("Nekomeiji's SA Displayer loaded");
+      console.info("Nekomeiji's SA Displayer loaded");
       setup();
     }
   }, 500);
@@ -80,10 +77,7 @@ let enabled = false;
         )
       );
       const isArtistComplete = aCount[0] >= aCount[1];
-      console.log(songNameClean);
-      console.log(artistList);
-      console.log(percent, isArtistComplete);
-      songInfoDisplay.update2(
+      songInfoDisplay.update(
         songNameClean,
         percent,
         artistList,
@@ -233,7 +227,7 @@ let enabled = false;
       return div;
     }
 
-    update2(songName, songPercent, artistList, isAnsweredArtist) {
+    update(songName, songPercent, artistList, isAnsweredArtist) {
       if (!document.getElementById("esaSongInfo")) this.setup();
 
       const songBox = document.getElementById("esaSongInfoSongNameBox");
@@ -273,55 +267,6 @@ let enabled = false;
         };
 
         renderGroup(artistList, null);
-      }
-
-      this.show();
-    }
-
-    update(songData, artistList1, artistList2) {
-      if (!document.getElementById("esaSongInfo")) this.setup();
-
-      const songBox = document.getElementById("esaSongInfoSongNameBox");
-      if (songBox) {
-        songBox.innerHTML = "";
-        const name = songData.guessed
-          ? songData.correctName
-          : songData.userAnswer;
-        const score = songData.guessed ? 100 : songData.rawScore || 0;
-        songBox.appendChild(this.createMatchElement(name, score));
-      }
-
-      const artistBox = document.getElementById("esaSongInfoArtistsBox");
-      if (artistBox) {
-        artistBox.innerHTML = "";
-
-        const renderGroup = (list, label) => {
-          if (label) {
-            const header = document.createElement("div");
-            header.className = "esaSongInfoHeader";
-            header.textContent = label;
-            header.style.borderTop = "1px dashed #555";
-            header.style.marginTop = "4px";
-            header.style.paddingTop = "2px";
-            artistBox.appendChild(header);
-          }
-
-          list.sort((a, b) => b.rating - a.rating);
-
-          list.forEach((artist) => {
-            let displayName = artist.name || "???";
-            artistBox.appendChild(
-              this.createMatchElement(displayName, artist.rating * 100)
-            );
-          });
-        };
-
-        if (artistList2 && artistList2.length > 0) {
-          renderGroup(artistList1, null);
-          renderGroup(artistList2, "Artist 2");
-        } else {
-          renderGroup(artistList1, null);
-        }
       }
 
       this.show();
