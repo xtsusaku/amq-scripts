@@ -36,7 +36,7 @@ function normalizeSearchString(str) {
  * @param {string} target The search string.
  * @returns {Array} A new array of [id, text] tuples, filtered and sorted by relevance.
  */
-export function rankSuggestions(suggestions, target) {
+function rankSuggestions(suggestions, target) {
   // 1. Normalize the target search string once.
   const normalizedTarget = normalizeSearchString(target);
 
@@ -88,7 +88,7 @@ export function rankSuggestions(suggestions, target) {
   return scoredSuggestions.map((item) => item.suggestion);
 }
 
-export default class Utils {
+class StringNormalizeUtils {
   static sortSimilarity(src, target) {
     // --- helpers ---
     const normalize = (s) =>
