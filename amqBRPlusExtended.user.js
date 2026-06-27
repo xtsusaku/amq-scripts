@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ BR Plus (Extended)
 // @namespace    https://github.com/xtsusaku/AMQScripts
-// @version      1.7.5
+// @version      1.7.6
 // @description  Upgrade Battle Royal QOL
 // @description  Alt + O to open the window or when in game click on the icon in the top right.
 // @description  ----- Main Page : -----
@@ -960,26 +960,54 @@ BattleRoyalContainerEntry.prototype.template = $("#brContainerEntryTemplate").ht
 
 }
 
+let annToLoad = [];
+let annCache = {};
+let isLoadAnnWorking = false;
+
+let loadAnn = async () => {
+    isLoadAnnWorking = true;
+    while(annToLoad.length > 0){
+        let local = localStorage.getItem(`annCache_${annId}`);
+        if(!local){
+            const annId = annToLoad.shift();
+            const annData = await fetch("https://cdn.animenewsnetwork.com/encyclopedia/api.xml?anime=" + annId).then(data => data.text());
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(annData,"text/xml");
+            const precision = xmlDoc.querySelector("anime")?.getAttribute("precision") ?? "UNKNOWN";
+            annCache[annId] = precision
+            for (const show of pickedShow){
+                if(show.id === annId) show.precision = precision
+            }
+            localStorage.setItem(`annCache_${annId}`, show.precision)
+        }else{
+            annCache[annId] = local
+        }
+    }
+    isLoadAnnWorking = false;
+}
+
 new Listener("new collected name entry", async (payload) => {
-    const annData = await fetch("https://cdn.animenewsnetwork.com/encyclopedia/api.xml?anime=" + payload.id).then(data => data.text());
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(annData,"text/xml");
-    const precision = xmlDoc.querySelector("anime")?.getAttribute("precision") ?? "UNKNOWN";
+    let precision = annCache[payload.id] ||localStorage.getItem(`annCache_${annId}`);
     if(language == 0){
         if(payload.eng){
-            pickedShow.push({id: payload.id, name: payload.eng, precision});
+            pickedShow.push({id: payload.id, name: payload.eng, precision: precision ?? "Loading..."});
         }
         else if(payload.jap){
-            pickedShow.push({id: payload.id, name: payload.jap, precision});
+            pickedShow.push({id: payload.id, name: payload.jap, precision: precision ?? "Loading..."});
         }
     }
     else{
         if(payload.jap){
-            pickedShow.push({id: payload.id, name: payload.jap, precision});
+            pickedShow.push({id: payload.id, name: payload.jap, precision: precision ?? "Loading..."});
         }
         else if(payload.eng){
-            pickedShow.push({id: payload.id, name: payload.eng, precision});
+            pickedShow.push({id: payload.id, name: payload.eng, precision: precision ?? "Loading..."});
         }
+    }
+    if(!precision){
+        annToLoad.push(payload.id)
+        if(!isLoadAnnWorking)
+            loadAnn();
     }
     displayPicked();
 }).bindListener();
