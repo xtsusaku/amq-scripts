@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Aliens Mode
 // @namespace    https://xtsusaku.net/
-// @version      0.0.4
+// @version      0.0.5
 // @description  AMQ Tweaks (request made)
 // @author       xTsuSaKu
 // @match        http*://*.animemusicquiz.com/*
@@ -48,11 +48,12 @@ function setup() {
 
 let skipPrefix = "#$ ";
 let isAlienOn = false;
-let alienList = [];
+
+let playerData = []
 let isHostKnown = true;
 let adventagePlayer = {
     nekomeiji: 3,
-    iamLuxin: 3
+    iamluxin: 3
 }
 let fastestPlayers = [];
 let acceptVotes = [];
@@ -79,7 +80,7 @@ function chatCommandSetup() {
                 case "reset":
                 case "restart": {
                     isAlienOn = false;
-                    alienList = [];
+                    playerData = [];
                     fastestPlayers = [];
                     acceptVotes = [];
                     document.NanaTweaksChatCommands.sendChat(`/aliens restart`);
@@ -102,6 +103,15 @@ function chatCommandSetup() {
                     })
                     break;
                 }
+                case "cm":
+                case "checkammo": {
+                    if (!isAlienOn) return;
+
+                    playerData.forEach((player) => {
+                        document.NanaTweaksChatCommands.sendChat(`${player.name}: ${player.ammo}`);
+                    })
+                    break;
+                }
                 case "ma":
                 case "maxammo": {
                     maxAmmo = Number(args[0] ?? 1);
@@ -118,17 +128,27 @@ function chatCommandSetup() {
                     document.NanaTweaksChatCommands.sendChat(`/aliens ${subCommand}`);
                     const count = Number(subCommand)
                     if (!isNaN(count)) {
-                        let allPlayers = Object.values(lobby.players)
-                        alienList = [];
+                        playerData = Object.values(lobby.players).map(p => {
+                            return {
+                                name: p._name,
+                                gamePlayerId: p.gamePlayerId,
+                                isAlien: false,
+                                responseChat: false,
+                                founded: false,
+                                ammo: 0,
+                                adventage: adventagePlayer[p._name] ?? 0,
+                                correct: false,
+                                answerTimeing: -1
+                            }
+                        }).sort((a, b) => a.gamePlayerId - b.gamePlayerId);
+                        let playerCloned = [...playerData];
                         for (let i = 0; i < count; i++) {
-                            let player = allPlayers.splice(Math.floor(Math.random() * allPlayers.length), 1)[0]
-                            if (player) alienList.push(player);
+                            let player = playerCloned.splice(Math.floor(Math.random() * playerCloned.length), 1)[0]
+                            if (player) playerData.find(p => p.gamePlayerId === player.gamePlayerId).isAlien = true;
                         }
-                        alienList.forEach(a => {
-                            setTimeout(() => document.NanaTweaksChatCommands.sendMessage(a._name, `Aliens: ${alienList.map(a => a._name).join(", ")}`, isHostKnown), 0)
-                            setTimeout(() => document.NanaTweaksChatCommands.sendMessage(a._name, `Please send back "ok" to confirm list`, isHostKnown), 1000)
-                            a.responseChat = false
-                            a.founded = false
+                        playerData.filter(p => p.isAlien).forEach(a => {
+                            setTimeout(() => document.NanaTweaksChatCommands.sendMessage(a.name, `Aliens: ${playerData.filter(p => p.isAlien).map(p => p.name).join(", ")}`, isHostKnown), 0)
+                            setTimeout(() => document.NanaTweaksChatCommands.sendMessage(a.name, `Please send back "ok" to confirm list`, isHostKnown), 1000)
                         })
                         isAlienOn = true
                     } else document.NanaTweaksChatCommands.sendChat(`
@@ -181,12 +201,15 @@ function registerListener() {
             async (result) => {
                 if (!isAlienOn) return;
                 const currentRound = Number(quiz.infoContainer.$currentSongCount.text());
-                let currentPlayers = Object.values(quiz.players).sort((a, b) => Number(a.gamePlayerId) - Number(b.gamePlayerId)).map(ppp => {
+                playerData.forEach(ppp => {
                     const resultPlayer = result.players.find(rpp => rpp.gamePlayerId === ppp.gamePlayerId)
-                    return { ...ppp, correct: resultPlayer.correct, answerTimeing: resultPlayer.answerTimeing }
+                    if (resultPlayer) {
+                        ppp.correct = resultPlayer.correct
+                        ppp.answerTimeing = resultPlayer.answerTimeing
+                    }
                 });
-                const foundedAlien = Object.values(alienList).filter((a) => {
-                    return a.founded === true;
+                const foundedAlien = Object.values(playerData).filter((a) => {
+                    return a.isAlien && a.founded === true;
                 })
                 document.NanaTweaksChatCommands.sendChat(`${skipPrefix}`);
                 document.NanaTweaksChatCommands.sendChat(`${skipPrefix}=========`);
@@ -196,7 +219,7 @@ function registerListener() {
                     type: "quiz",
                     command: "quiz pause"
                 })
-                fastestPlayers = currentPlayers.filter(pp => pp.correct).map(pp => {
+                fastestPlayers = playerData.filter(pp => pp.correct).map(pp => {
                     let advantageEntry = Object.entries(adventagePlayer).find(([key, value]) => key.toLowerCase() === pp._name.toLowerCase());
                     let bonusTime = advantageEntry ? advantageEntry[1] : 0;
                     return { ...pp, answerTimeing: Number(pp.answerTimeing) + bonusTime };
@@ -210,11 +233,11 @@ function registerListener() {
                     return;
                 }
                 if (currentRound % 10 === 0) {
-                    document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Type ${alienList.length} player name to vote who goes checked`);
+                    document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Type 1 player name to vote who goes checked`);
                     acceptVotes = currentPlayers.map(p => p._name);
                 } else {
                     document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Fastest Player: ${fastestPlayers[0]._name}`);
-                    document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Type ${alienList.length} player name spaced to guess the aliens`);
+                    document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Type ${playerData.filter(p => p.isAlien).length} player name spaced to guess the aliens`);
                     document.NanaTweaksChatCommands.sendChat(`${skipPrefix}If ask list, please ask and response with ok!`);
                 }
             },
@@ -222,10 +245,10 @@ function registerListener() {
         [
             "chat message",
             (result) => {
-                const alienPlayer = alienList.find(a => a._name === result.sender)
-                if (alienList.length !== 0 && alienPlayer && alienPlayer.responseChat === false && result.message.toLowerCase() === "ok") {
+                const alienPlayer = playerData.find(a => a.isAlien && a._name === result.sender)
+                if (playerData.filter(p => p.isAlien).length !== 0 && alienPlayer && alienPlayer.responseChat === false && result.message.toLowerCase() === "ok") {
                     alienPlayer.responseChat = true;
-                    const allAlienConfirmed = alienList.every((r) => r.responseChat === true);
+                    const allAlienConfirmed = playerData.filter(p => p.isAlien).every((r) => r.responseChat === true);
                     if (allAlienConfirmed) {
                         document.NanaTweaksChatCommands.sendChat(`All aliens have confirmed the list. Host can start game`);
                     }
@@ -239,8 +262,8 @@ function registerListener() {
                 const message = result.messages[0]
                 if (!message || message.sender === "") return;
                 if (message.message.startsWith(skipPrefix)) return;
-                let currentPlayers = Object.values(quiz.players).sort((a, b) => Number(a.gamePlayerId) - Number(b.gamePlayerId));
                 const currentRound = Number(quiz.infoContainer.$currentSongCount.text());
+                const totalSongCount = Number(quiz.infoContainer.$totalSongCount.text());
                 if (currentRound % 10 === 0) {
                     const p = fastestPlayers.find(p => p._name === message.sender)
                     if (!p) return;
@@ -258,9 +281,7 @@ function registerListener() {
                         })
                         let rankingVoteList = Object.entries(rankingVote).sort((a, b) => b[1] - a[1])
                         rankingVoteList.forEach(([name, vote]) => {
-                            let pp = currentPlayers.find(p => p._name === name)
-                            if (!pp) return;
-                            document.NanaTweaksChatCommands.sendChat(`${skipPrefix}${pp._name}: ${vote}`)
+                            document.NanaTweaksChatCommands.sendChat(`${skipPrefix}${name}: ${vote}`)
                         })
 
                         let tieInfo = checkTie(rankingVoteList)
@@ -270,8 +291,8 @@ function registerListener() {
                             fastestPlayers.forEach(f => f.vote = undefined);
                             document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Accept Vote: ${acceptVotes.join(", ")}`);
                         } else {
-                            let checkedPlayer = currentPlayers.find(p => p._name === tieInfo.winner);
-                            let alienCheckedPlayer = alienList.find(a => a._name === checkedPlayer._name);
+                            let checkedPlayer = playerData.find(p => p._name === tieInfo.winner);
+                            let alienCheckedPlayer = playerData.find(a => a.isAlien && a._name === checkedPlayer._name);
                             if (checkedPlayer && alienCheckedPlayer) {
                                 document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Correct guess! ${checkedPlayer._name} is an alien`);
                                 alienCheckedPlayer.founded = true;
@@ -289,25 +310,30 @@ function registerListener() {
                     }
                 } else {
                     if (message.sender !== fastestPlayers[0]._name) return
+                    const sender = playerData.find(p => p._name === message.sender)
                     if (message.message.trim().toLowerCase() !== "ok") {
+                        if (sender.ammo <= 0) {
+                            document.NanaTweaksChatCommands.sendChat(`${skipPrefix}${sender._name} - Ammo exhausted!`);
+                            return;
+                        }
                         let data = message.message.split(" ").map(s => s.trim()).filter(s => s !== "").map(player => {
                             const foundName = findPlayer(acceptVotes, player)
                             if (!foundName) return
                             return foundName
                         }).filter(p => p !== undefined);
-                        if (data.length !== alienList.length) return
+                        if (data.length !== playerData.filter(p => p.isAlien).length) return
                         let isAllAliens = true;
                         data.forEach(i => {
-                            if (alienList.find(a => a._name === i) === undefined) {
+                            if (playerData.find(a => a.isAlien && a._name === i) === undefined) {
                                 isAllAliens = false;
                                 return;
                             }
                         })
                         if (isAllAliens) {
                             data.forEach(i => {
-                                alienList.find(a => a._name === i).founded = true;
+                                playerData.find(a => a.isAlien && a._name === i).founded = true;
                             })
-                            document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Correct guess!\nAll Aliens: ${alienList.map(a => a._name).join(", ")}`);
+                            document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Correct guess!\nAll Aliens: ${playerData.filter(p => p.isAlien).map(a => a._name).join(", ")}`);
                             fastestPlayers = [];
                             acceptVotes = [];
                             isAlienOn = false;
@@ -322,10 +348,12 @@ function registerListener() {
                                 type: "quiz",
                                 command: "quiz unpause"
                             })
+                            sender.ammo = Math.max(0, sender.ammo - 1)
                         }
                     }
                     fastestPlayers = [];
                     acceptVotes = [];
+                    sender.ammo = Math.min(maxAmmo, sender.ammo + 1)
                     socket.sendCommand({
                         type: "quiz",
                         command: "quiz unpause"
