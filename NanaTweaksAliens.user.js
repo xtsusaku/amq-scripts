@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Aliens Mode
 // @namespace    https://xtsusaku.net/
-// @version      0.0.7
+// @version      0.0.8
 // @description  AMQ Tweaks (request made)
 // @author       xTsuSaKu
 // @match        http*://*.animemusicquiz.com/*
@@ -189,7 +189,7 @@ function findPlayer(acceptVotes, message) {
     if (!findVotePlayer || findVotePlayer.length === 0) return;
     let bestMatch = findVotePlayer.sort((a, b) => b.score - a.score)[0];
     if (bestMatch.score < similarityThreshold) return;
-    let matchedPlayer = acceptVotes.find(p => p === bestMatch.name);
+    let matchedPlayer = acceptVotes.find(p => p === bestMatch.target);
     if (!matchedPlayer) return;
     return matchedPlayer
 }
@@ -236,7 +236,7 @@ function registerListener() {
                     document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Type 1 player name to vote who goes checked`);
                     acceptVotes = playerData.map(p => p.name);
                 } else {
-                    document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Fastest Player: ${fastestPlayers[0].name}`);
+                    document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Fastest Player: ${fastestPlayers[0].name} [Ammo: ${fastestPlayers[0].ammo}/${maxAmmo}]`);
                     document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Type ${playerData.filter(p => p.isAlien).length} player name spaced to guess the aliens`);
                     document.NanaTweaksChatCommands.sendChat(`${skipPrefix}If ask list, please ask and response with ok!`);
                 }
@@ -351,11 +351,13 @@ function registerListener() {
                                 type: "quiz",
                                 command: "quiz unpause"
                             })
+                            document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Ammo: ${sender.name} ${sender.ammo} -> ${Math.max(0, sender.ammo - 1)}`);
                             sender.ammo = Math.max(0, sender.ammo - 1)
                         }
                     }
                     fastestPlayers = [];
                     acceptVotes = [];
+                    document.NanaTweaksChatCommands.sendChat(`${skipPrefix}Ammo: ${sender.name} ${sender.ammo} -> ${Math.min(maxAmmo, sender.ammo + 1)}`);
                     sender.ammo = Math.min(maxAmmo, sender.ammo + 1)
                     socket.sendCommand({
                         type: "quiz",
