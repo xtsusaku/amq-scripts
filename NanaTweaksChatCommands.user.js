@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Chat Commands
 // @namespace    https://xtsusaku.net/
-// @version      0.0.7
+// @version      0.0.8
 // @description  AMQ Tweaks (request made)
 // @author       xTsuSaKu
 // @match        http*://*.animemusicquiz.com/*
@@ -25,7 +25,7 @@ let NanaTweaksNanaTweaksChatCommandsLoadInterval = setInterval(() => {
 class SendQueue {
     static queue = [];
     static isProcessing = false;
-    static DELAY_MS = 1000;
+    static DELAY_MS = 300;
 
     static enqueue(fn) {
         this.queue.push(fn);
