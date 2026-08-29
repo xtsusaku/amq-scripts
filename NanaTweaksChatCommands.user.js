@@ -3,11 +3,11 @@
 // @namespace    https://xtsusaku.net/
 // @version      0.0.6
 // @description  AMQ Tweaks (request made)
-// @author       You
+// @author       xTsuSaKu
 // @match        http*://*.animemusicquiz.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=animemusicquiz.com
-// @downloadURL  https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksKeybinds.user.js
-// @updateURL    https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksKeybinds.user.js
+// @downloadURL  https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksChatCommands.user.js
+// @updateURL    https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksChatCommands.user.js
 // ==/UserScript==
 
 "use strict";
