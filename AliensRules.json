@@ -1,0 +1,38 @@
+[
+    {
+        "th": "กติกาเกมเอเลี่ยน:\n\n",
+        "en": "Aliens Rules:\n\n"
+    },
+    {
+        "th": "1. ในล็อบบี้, ผู้เล่นทุกคนต้องถอดลิสต์ของตัวเองออกให้หมด (รวมถึงที่รีโหลดมาด้วย)\n",
+        "en": "1. In Lobby, All players must remove all their anime list (includes reloaded ones)\n"
+    },
+    {
+        "th": "2. โฮสต์จะทำการสุ่มผู้เล่นและจะทักส่วนตัวไปหาเอเลี่ยน\n",
+        "en": "2. Host will randomly select players and will send a private message to the aliens\n"
+    },
+    {
+        "th": "3. ในเกมผู้เล่นที่ตอบไวที่สุดจะได้สิทธิ์ในการทำ Action\n",
+        "en": "3. In game, the player who answers the fastest gets the right to do an action\n"
+    },
+    {
+        "th": "3.1. ถามผู้เล่น 1 คนว่าเขาคนนั้นมีเรื่องนี้ในลิสต์ของเขาไหม\n",
+        "en": "3.1. Ask 1 player if that person has this anime in their list\n"
+    },
+    {
+        "th": "3.2. เลือกทายผู้เล่นที่เป็นเอเลี่ยน (ต้องทายถูกทุกคน)\n",
+        "en": "3.2. Choose to guess which players are the alien (every aliens must be found)\n"
+    },
+    {
+        "th": "4. ทุก ๆ 10 ข้อ จะให้ผู้เล่นที่ตอบถูกในข้อนั้น ๆ ทำการโหวตผู้เล่น 1 คนเข้าเครื่องตรวจเอเลี่ยน\n",
+        "en": "4. Every 10 questions, the players who answered correctly will get to vote for 1 player to check for alien\n"
+    },
+    {
+        "th": "4.1. หากผู้เล่นที่ถูกโหวตเป็นเอเลี่ยน ผู้เล่นคนนั้นจะไม่ถูกนับใน Action ใด ๆ อีก\n",
+        "en": "4.1. If the voted player is an alien, that player will no longer be counted in any action\n"
+    },
+    {
+        "th": "4.2. หากผู้เล่นที่ถูกโหวตไม่ใช่เอเลี่ยน เกมจะดำเนินต่อไป\n",
+        "en": "4.2. If the voted player is not an alien, the game will continue\n"
+    }
+]
