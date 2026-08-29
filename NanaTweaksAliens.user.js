@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Aliens Mode
 // @namespace    https://xtsusaku.net/
-// @version      0.0.6
+// @version      0.0.7
 // @description  AMQ Tweaks (request made)
 // @author       xTsuSaKu
 // @match        http*://*.animemusicquiz.com/*
@@ -185,16 +185,11 @@ function checkTie(entries) {
 
 function findPlayer(acceptVotes, message) {
     let rawVoteStr = message.trim();
-    console.log("acceptVotes", acceptVotes)
-    console.log("rawVoteStr", rawVoteStr)
-    let findVotePlayer = DiceCoefficient.matchNames(acceptVotes, rawVoteStr, { threshold: similarityThreshold });
-    console.log("findVotePlayer", findVotePlayer)
+    let findVotePlayer = DiceCoefficient.match(acceptVotes, rawVoteStr, similarityThreshold);
     if (!findVotePlayer || findVotePlayer.length === 0) return;
     let bestMatch = findVotePlayer.sort((a, b) => b.score - a.score)[0];
-    console.log("bestMatch", bestMatch)
     if (bestMatch.score < similarityThreshold) return;
     let matchedPlayer = acceptVotes.find(p => p === bestMatch.name);
-    console.log("matchedPlayer", matchedPlayer)
     if (!matchedPlayer) return;
     return matchedPlayer
 }
@@ -322,9 +317,7 @@ function registerListener() {
                             return;
                         }
                         let data = message.message.split(" ").map(s => s.trim()).filter(s => s !== "").map(player => {
-                            console.log("player", player)
                             const foundName = findPlayer(playerData.map(pl => pl.name), player)
-                            console.log("foundName", foundName)
                             if (!foundName) return
                             return foundName
                         }).filter(p => p !== undefined);
@@ -380,7 +373,7 @@ function registerListener() {
 class DiceCoefficient {
     /**
      * Generates character bigrams (pairs of adjacent characters) from a string.
-     * @param {string} str
+     * @param {string} str 
      * @returns {Map<string, number>}
      */
     static getBigrams(str) {
@@ -399,8 +392,8 @@ class DiceCoefficient {
 
     /**
      * Calculates the Sorensen-Dice coefficient between two strings.
-     * @param {string} str1
-     * @param {string} str2
+     * @param {string} str1 
+     * @param {string} str2 
      * @returns {number} Score between 0 and 1
      */
     static compare(str1, str2) {
@@ -448,17 +441,3 @@ class DiceCoefficient {
             .sort((a, b) => b.score - a.score);
     }
 }
-
-// Example usage:
-const candidates = ["night", "nacht", "knight", "light", "alligator"];
-
-const results = DiceCoefficient.match(candidates, "night", 0.4);
-console.log(results);
-/*
-Output:
-[
-  { target: 'night', score: 1 },
-  { target: 'knight', score: 0.8 },
-  { target: 'light', score: 0.75 }
-]
-*/
