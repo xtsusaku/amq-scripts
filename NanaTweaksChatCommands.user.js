@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         NanaTweaks Chat Commands
 // @namespace    https://xtsusaku.net/
-// @version      0.0.5
+// @version      0.0.6
 // @description  AMQ Tweaks (request made)
-// @author       xTsuSaKu
+// @author       You
 // @match        http*://*.animemusicquiz.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=animemusicquiz.com
-// @downloadURL  https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksChatCommands.user.js
-// @updateURL    https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksChatCommands.user.js
+// @downloadURL  https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksKeybinds.user.js
+// @updateURL    https://github.com/xtsusaku/amq-scripts/raw/main/NanaTweaksKeybinds.user.js
 // ==/UserScript==
 
 "use strict";
@@ -67,8 +67,10 @@ class NanaTweaksChatCommands {
     }
 
     static sendMessage(target, message, isOpenchat = false) {
+        console.log(`send ${message} to ${target}`)
         if(isOpenchat) socialTab.chatBar.getChat(target)
-        socket.sendCommand({
+        if(target === selfName) socialTab.chatBar.getChat(target).writeMessage(selfName, message, {customEmojis: [], emotes:[], shotCodes: []})
+        else socket.sendCommand({
             type: "social",
             command: "chat message",
             data: {
@@ -76,6 +78,5 @@ class NanaTweaksChatCommands {
                 message
             },
         });
-        if(isOpenchat) socialTab.chatBar.getChat(target).writeMessage(selfName, message, {customEmojis: [], emotes:[], shotCodes: []})
     }
 }
