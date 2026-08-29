@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Chat Commands
 // @namespace    https://xtsusaku.net/
-// @version      0.0.6
+// @version      0.0.7
 // @description  AMQ Tweaks (request made)
 // @author       xTsuSaKu
 // @match        http*://*.animemusicquiz.com/*
@@ -21,6 +21,38 @@ let NanaTweaksNanaTweaksChatCommandsLoadInterval = setInterval(() => {
         document.NanaTweaksChatCommands = NanaTweaksChatCommands;
     }
 }, 500);
+
+class SendQueue {
+    static queue = [];
+    static isProcessing = false;
+    static DELAY_MS = 1000;
+
+    static enqueue(fn) {
+        this.queue.push(fn);
+        this.process();
+    }
+
+    static process() {
+        if (this.isProcessing) return;
+        this.isProcessing = true;
+
+        const run = () => {
+            if (this.queue.length === 0) {
+                this.isProcessing = false;
+                return;
+            }
+            const fn = this.queue.shift();
+            try {
+                fn();
+            } catch (e) {
+                console.error("SendQueue error:", e);
+            }
+            setTimeout(run, this.DELAY_MS);
+        };
+
+        run();
+    }
+}
 
 class NanaTweaksChatCommands {
     // Example - { name: "potatoes", desc:"Potatoes GameMode", cb: (subs:string[]) => {} }
@@ -56,27 +88,41 @@ class NanaTweaksChatCommands {
     }
 
     static sendChat(msg, teamMessage = false) {
-        socket.sendCommand({
-            type: "lobby",
-            command: "game chat message",
-            data: {
-                msg,
-                teamMessage,
-            },
+        SendQueue.enqueue(() => {
+            socket.sendCommand({
+                type: "lobby",
+                command: "game chat message",
+                data: {
+                    msg,
+                    teamMessage,
+                },
+            });
         });
     }
 
     static sendMessage(target, message, isOpenchat = false) {
-        console.log(`send ${message} to ${target}`)
-        if(isOpenchat) socialTab.chatBar.getChat(target)
-        if(target === selfName) socialTab.chatBar.getChat(target).writeMessage(selfName, message, {customEmojis: [], emotes:[], shotCodes: []})
-        else socket.sendCommand({
-            type: "social",
-            command: "chat message",
-            data: {
-                target,
-                message
-            },
+        if (isOpenchat) {
+            socialTab.chatBar.getChat(target);
+            socialTab.chatBar.getChat(target).open();
+        }
+        if (target === selfName) {
+            // local echo, no need to rate-limit
+            socialTab.chatBar.getChat(target).writeMessage(selfName, message, {
+                customEmojis: [],
+                emotes: [],
+                shotCodes: [],
+            });
+            return;
+        }
+        SendQueue.enqueue(() => {
+            socket.sendCommand({
+                type: "social",
+                command: "chat message",
+                data: {
+                    target,
+                    message,
+                },
+            });
         });
     }
 }
