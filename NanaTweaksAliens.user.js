@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Aliens Mode
 // @namespace    https://xtsusaku.net/
-// @version      0.0.3
+// @version      0.0.4
 // @description  AMQ Tweaks (request made)
 // @author       xTsuSaKu
 // @match        http*://*.animemusicquiz.com/*
@@ -171,6 +171,7 @@ function findPlayer(acceptVotes, message) {
     if (bestMatch.score < similarityThreshold) return;
     let matchedPlayer = acceptVotes.find(p => p._name === bestMatch.name);
     if (!matchedPlayer) return;
+    return matchedPlayer._name
 }
 
 function registerListener() {
@@ -199,7 +200,7 @@ function registerListener() {
                     let advantageEntry = Object.entries(adventagePlayer).find(([key, value]) => key.toLowerCase() === pp._name.toLowerCase());
                     let bonusTime = advantageEntry ? advantageEntry[1] : 0;
                     return { ...pp, answerTimeing: Number(pp.answerTimeing) + bonusTime };
-                }).sort((a, b) => a.answerTimeing - b.answerTimeing).filter(ppp => foundedAlien.map(fa => fa._name).includes(ppp._name));
+                }).sort((a, b) => a.answerTimeing - b.answerTimeing).filter(ppp => !foundedAlien.find(fa => fa._name === ppp._name && fa.founded === true));
                 if (fastestPlayers.length <= 0) {
                     socket.sendCommand({
                         type: "quiz",
@@ -245,14 +246,9 @@ function registerListener() {
                     if (!p) return;
                     if (message.message.split(" ").map(s => s.trim()).filter(s => s !== "").length !== 1) return;
 
-                    let rawVoteStr = message.message.trim();
-                    let findVotePlayer = DiceSimilarity.matchNames(acceptVotes, rawVoteStr, { threshold: similarityThreshold });
-                    if (!findVotePlayer || findVotePlayer.length === 0) return;
-                    let bestMatch = findVotePlayer.sort((a, b) => b.score - a.score)[0];
-                    if (bestMatch.score < similarityThreshold) return;
-                    let matchedPlayer = acceptVotes.find(p => p._name === bestMatch.name);
-                    if (!matchedPlayer) return;
-                    p.vote = matchedPlayer._name;
+                    let foundName = findPlayer(acceptVotes, message.message)
+                    if (!foundName) return;
+                    p.vote = foundName;
 
                     if (fastestPlayers.every(pp => pp.vote !== undefined)) {
                         let rankingVote = {}
@@ -294,7 +290,11 @@ function registerListener() {
                 } else {
                     if (message.sender !== fastestPlayers[0]._name) return
                     if (message.message.trim().toLowerCase() !== "ok") {
-                        let data = message.message.split(" ").map(s => s.trim()).filter(s => s !== "");
+                        let data = message.message.split(" ").map(s => s.trim()).filter(s => s !== "").map(player => {
+                            const foundName = findPlayer(acceptVotes, player)
+                            if (!foundName) return
+                            return foundName
+                        }).filter(p => p !== undefined);
                         if (data.length !== alienList.length) return
                         let isAllAliens = true;
                         data.forEach(i => {
