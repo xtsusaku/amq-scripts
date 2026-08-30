@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NanaTweaks Chat Commands
 // @namespace    https://xtsusaku.net/
-// @version      0.0.8
+// @version      0.0.9
 // @description  AMQ Tweaks (request made)
 // @author       xTsuSaKu
 // @match        http*://*.animemusicquiz.com/*
@@ -15,7 +15,8 @@
 if (typeof Listener === "undefined") return;
 
 let NanaTweaksNanaTweaksChatCommandsLoadInterval = setInterval(() => {
-    if ($("#loadingScreen").hasClass("hidden")) {
+    if(document.NanaTweaksChatCommands) clearInterval(NanaTweaksNanaTweaksChatCommandsLoadInterval);
+    else if ($("#loadingScreen").hasClass("hidden")) {
         clearInterval(NanaTweaksNanaTweaksChatCommandsLoadInterval);
         NanaTweaksChatCommands.setup();
         document.NanaTweaksChatCommands = NanaTweaksChatCommands;
